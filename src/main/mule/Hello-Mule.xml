@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="d07ad2b7-78fa-4485-83ef-c5553afba7e8" basePath="hello-mule" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="80e6d778-5927-489d-8a64-3a3f114965c2" file="properties\config-${mule.env}.yaml" />
+	<global-property doc:name="Global Property" doc:id="02e66590-aa3b-4642-8fda-d6d774b3129e" name="mule.env" value="local" />
+	<flow name="hello-muleFlow" doc:id="e28c08ea-294d-4cd1-b223-3c6971280f5c" >
+		<http:listener doc:name="HTTP" doc:id="46e1197e-e3bc-4bfe-962a-4374640bb857" config-ref="HTTP_Listener_config" path="hello-mule"/>
+		<logger level="INFO" doc:name="Start logger" doc:id="d31ee2bd-70f6-4771-a65c-b75b96d10ba4" message='#["flow started = " ++ flow.name]'/>
+		<ee:transform doc:name="JSON  payload" doc:id="a43e5c37-77c8-41d7-b6ca-517cdde07413" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"empID":payload.ID,
+	"empName":payload.name
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="PRINT" doc:id="eaddf860-be02-466d-90d5-3c7d94b5af4c" message="#[payload]"/>
+		<logger level="INFO" doc:name="end" doc:id="1062afff-08d6-499c-b776-028ab23abf85" message='#["flow ended = " ++ flow.name]'/>
+	</flow>
+</mule>
